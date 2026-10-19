@@ -1,0 +1,27 @@
+{
+  "name": "wic-projects-git-workshop",
+  "version": "1.0.0",
+  "description": "Starter Code for WIC Projects' Git/Github workshop.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mianbao004/WIC-Projects-git-workshop.git"
+  },
+  "keywords": [],
+  "author": "Mianbao004",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mianbao004/WIC-Projects-git-workshop/issues"
+  },
+  "homepage": "https://github.com/Mianbao004/WIC-Projects-git-workshop#readme",
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0"
+  }
+}
