@@ -5,7 +5,7 @@
 }
 
 /* Background changes with the weather so it feels like you stepped in. */
-body[data-condition="clear"] { --bg: linear-gradient(160deg, #fceabb, #f8b500); }
+body[data-condition="sunny"] { --bg: linear-gradient(180deg, #d0e8ff, #ffd767); }
 body[data-condition="clouds"] { --bg: linear-gradient(160deg, #d7dde8, #757f9a); }
 body[data-condition="drizzle"] { --bg: linear-gradient(160deg, #4f6a85, #34495e); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.25); }
 body[data-condition="rain"] { --bg: linear-gradient(160deg, #4b6cb7, #182848); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.3); }
@@ -98,6 +98,33 @@ button { cursor: pointer; }
 
 @keyframes fall { /* Animation called fall. Ends a bit below the screen at 110% */
   to { transform: translateY(110vh); }
+}
+
+/* Clouds: soft blobs at random heights (top to middle), drifting left to right. */
+body[data-condition="clouds"] { --rain-speed: 40; }   /* very slow: about 12-32s per trip */
+
+body[data-condition="clouds"] .drop:nth-child(5n) {
+  display: block;
+  top: var(--cloud-y);         
+  left: 0;
+  width: 200px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  filter: blur(20px);
+  animation-name: drift;
+}
+
+/* Far clouds are smaller (they're already fainter and slower from .drop.far). */
+body[data-condition="clouds"] .drop.far:nth-child(5n) {
+  width: 140px;
+  height: 40px;
+}
+
+/* Left to right, starting and ending off-screen. */
+@keyframes drift {
+  from { transform: translateX(-30vw); }
+  to   { transform: translateX(130vw); }
 }
 
 /* Drizzle: light with few drops falling slowly. */

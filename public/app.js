@@ -16,7 +16,8 @@ for (let i = 0; i < 150; i++) {
   drop.className = Math.random() < 0.5 ? 'drop far' : 'drop';
   drop.style.left = `${Math.random() * 100}%`;
   drop.style.setProperty('--fall', `${0.6 + Math.random() * 0.4}s`); // 0.6s to 1s
-  drop.style.animationDelay = `${-Math.random() * 2}s`; // negative = already mid-fall on load
+  drop.style.setProperty('--cloud-y', `${Math.random() * 50}%`); // clouds: random height, top to middle
+  drop.style.animationDelay = `${-Math.random() * 100}s`; // negative = already mid-way on load
   sky.append(drop);
 }
 
