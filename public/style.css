@@ -10,7 +10,9 @@ body[data-condition="clouds"] { --bg: linear-gradient(160deg, #d7dde8, #757f9a);
 body[data-condition="drizzle"] { --bg: linear-gradient(160deg, #4f6a85, #34495e); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.25); }
 body[data-condition="rain"] { --bg: linear-gradient(160deg, #4b6cb7, #182848); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.3); }
 body[data-condition="thunderstorm"] { --bg: linear-gradient(160deg, #3a3f5c, #0f0c29); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.4); }
-body[data-condition="snow"] { --bg: linear-gradient(160deg, #ffffff, #c9d6ff); }
+body[data-condition="light snow"],
+body[data-condition="snow"] { --bg: linear-gradient(160deg, #ddfeff, #95aeff); }
+
 
 * { box-sizing: border-box; }
 
@@ -128,6 +130,25 @@ body[data-condition="thunderstorm"] .sky::before {
   93% { opacity: 0.4; }
   95% { opacity: 0; }
 }
+
+/* Snow: heavy and every drop is falling fast. */
+body[data-condition="light snow"] { --rain-speed: 1.8; }
+body[data-condition="light snow"] .drop { 
+  display: block; 
+  width: 6px;
+  height: 6px;          
+  border-radius: 50%;  
+  background: #fff;
+}
+
+body[data-condition="snow"] { --rain-speed: 0.8; }
+body[data-condition="snow"] .drop { 
+  display: block;
+  width: 6px;
+  height: 6px;         
+  border-radius: 50%;  
+  background: #fff;
+   }
 
 @media (prefers-reduced-motion: reduce) { /* If uses requests reduced or no motion in their preferences. */
   .drop,
