@@ -177,7 +177,7 @@ form,
 }
 
 /* Clouds: soft blobs at random heights (top to middle), drifting left to right. */
-body[data-condition="clouds"] { --rain-speed: 40; }   /* very slow: about 12-32s per trip */
+body[data-condition="clouds"] { --rain-speed: 40; }   /* very slow: about 24-64s per trip */
 
 body[data-condition="clouds"] .drop:nth-child(5n) {
   display: block;
@@ -215,7 +215,7 @@ body[data-condition="rain"] .drop:nth-child(2n) { display: block; }
 body[data-condition="thunderstrom"] { --rain-speed: 0.8; }
 body[data-condition="thunderstrom"] .drop { display: block; }
 
-/* Thunderstorm: a quick double flash of lightning every 6 seconds. */
+/* Thunderstorm: a quick double flash of lightning every 8 seconds. */
 body[data-condition="thunderstrom"] .sky::before {
   content: '';
   position: absolute;
@@ -234,7 +234,7 @@ body[data-condition="thunderstrom"] .sky::before {
   95% { opacity: 0; }
 }
 
-/* Snow: heavy and every drop is falling fast. */
+/* Snow and light snow: every drop becomes a round white flake. Light snow falls more slowly. */
 body[data-condition="light snow"] { --rain-speed: 1.8; }
 body[data-condition="light snow"] .drop { 
   display: block; 
@@ -253,7 +253,7 @@ body[data-condition="snow"] .drop {
   background: #fff;
    }
 
-@media (prefers-reduced-motion: reduce) { /* If uses requests reduced or no motion in their preferences. */
+@media (prefers-reduced-motion: reduce) { /* If users request reduced or no motion in their preferences. */
   .drop,
   .sky::before {
     animation: none;
