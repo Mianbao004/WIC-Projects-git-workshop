@@ -9,7 +9,7 @@ Your team works in its **own copy** of this repo, called a **fork**. The Build M
 **Build Master:**
 1. Sign in to GitHub and open the workshop repo.
 2. Click **Fork** (top-right) → **Create a new fork**.
-3. ⚠️ **Uncheck "Copy the `main` branch only"**, so the `feature/...` branches come too. You'll need them later!
+3. Leave **"Copy the `main` branch only"** checked. You only need `main`.
 4. Rename your repo to `WIC-ProjectTeam(#)-git-workshop` (or whatever your team wants). You can do this in **Settings → General → Repository name**.
 5. Click **Create fork**. You now have `https://github.com/YOUR-USERNAME/WIC-ProjectTeam(#)-git-workshop`.
 6. **Turn on Issues:** In your fork, go to **Settings → General → Features** and check **Issues**. (Forks turn them off by default.)
@@ -29,7 +29,6 @@ Your team works in its **own copy** of this repo, called a **fork**. The Build M
 
 ### ✋ Checkpoint: raise your hand!
 When your whole team is done, **raise your hand** so I can check you off. We'll look for:
-- [ ] The Build Master's fork has the `feature/...` branches (click the branch dropdown on GitHub)
 - [ ] **Issues** are turned on in the fork
 - [ ] Every teammate is a collaborator and has cloned the fork onto their computer
 - [ ] Everyone has run `npm install`
