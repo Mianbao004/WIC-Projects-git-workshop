@@ -53,18 +53,27 @@ async function fetchOpenMeteo(url) {
   return response.json();
 }
 
-// Open-Meteo returns WMO weather codes. Map them to the conditions the frontend styles.
+// Open-Meteo returns WMO weather codes. Map each one to a condition the frontend styles.
 // https://open-meteo.com/en/docs (see "WMO Weather interpretation codes")
+const WEATHER_CODES = {
+  0: 'sunny',          1: 'sunny',            // clear sky, mainly clear
+  2: 'clouds',         3: 'clouds',
+  45: 'clouds',        48: 'clouds',          // fog
+  51: 'drizzle',       53: 'drizzle',         55: 'drizzle',
+  56: 'drizzle',       57: 'drizzle',         // freezing drizzle
+  61: 'rain',          63: 'rain',            65: 'rain',
+  66: 'rain',          67: 'rain',            // freezing rain
+  71: 'light snow',    73: 'snow',            75: 'snow',
+  77: 'light snow',                           // snow grains
+  80: 'rain',          81: 'rain',            82: 'rain',    // rain showers
+  85: 'light snow',    86: 'snow',            // snow showers
+  95: 'thunderstorm',  96: 'thunderstorm',    99: 'thunderstorm',
+};
+
 function describeWeatherCode(code) {
-  if (code === 0) return { condition: 'clear', description: 'clear sky' };
-  if (code <= 3) return { condition: 'clouds', description: 'partly cloudy' };
-  if (code <= 48) return { condition: 'fog', description: 'fog' };
-  if (code <= 57) return { condition: 'drizzle', description: 'drizzle' };
-  if (code <= 67) return { condition: 'rain', description: 'rain' };
-  if (code <= 77) return { condition: 'snow', description: 'snow' };
-  if (code <= 82) return { condition: 'rain', description: 'rain showers' };
-  if (code <= 86) return { condition: 'snow', description: 'snow showers' };
-  return { condition: 'thunderstorm', description: 'thunderstorm' };
+  // Fallback in case Open-Meteo ever sends a code that isn't in the table.
+  const condition = WEATHER_CODES[code] ?? 'clouds';
+  return { condition, description: condition };
 }
 
 // Only send the browser the fields it needs.
