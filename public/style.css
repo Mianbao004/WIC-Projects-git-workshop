@@ -1,0 +1,262 @@
+:root {
+  --bg: linear-gradient(160deg, #8ec5fc, #e0c3fc);
+  --text: #1d1d28;
+  --card: rgba(255, 255, 255, 0.6);
+}
+
+/* Background changes with the weather so it feels like you stepped in. */
+body[data-condition="sunny"] { --bg: linear-gradient(180deg, #d0e8ff, #ffd767); }
+body[data-condition="clouds"] { --bg: linear-gradient(160deg, #d7dde8, #757f9a); }
+body[data-condition="drizzle"] { --bg: linear-gradient(160deg, #4f6a85, #34495e); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.25); }
+body[data-condition="rain"] { --bg: linear-gradient(160deg, #4b6cb7, #182848); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.3); }
+body[data-condition="thunderstrom"] { --bg: linear-gradient(160deg, #3a3f5c, #0f0c29); --text: #f2f4f8; --card: rgba(0, 0, 0, 0.4); }
+body[data-condition="light snow"],
+body[data-condition="snow"] { --bg: linear-gradient(160deg, #ddfeff, #95aeff); }
+
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  transition: background 0.6s;
+}
+
+h1 {
+  text-align: center;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+main {
+  position: relative; /* keeps the content above the .sky layer */
+  max-width: 80vw;   /* 80% of the screen width, centered by margin: 0 auto */
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+input, button {
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+button {
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* Hover: lifts slightly, like it's ready to be pressed. */
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Press: shrinks and drops its shadow, like it's being pushed in. */
+button:active {
+  transform: scale(0.94);
+  box-shadow: none;
+}
+
+/* Loading (only between pressing Go! and the weather arriving): solid grey, and no hover or press effects. */
+button:disabled {
+  background: #d4d6db;   /* solid grey, never see-through */
+  color: #6b6f78;        /* muted text, still readable */
+  cursor: wait;
+  transform: none;
+  box-shadow: none;
+}
+
+.card {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--card);
+}
+
+/* Map is wide; the form and weather card stay compact and centered under it. */
+form,
+.card {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.clock { font-size: 3rem; margin: 8px 0; }
+.temp { font-size: 1.5rem; margin: 0; }
+.error { color: #b00020; }
+
+/* Map: where users drop the person to pick a location. */
+#map {
+  height: 70vh;      /* 70% of the screen height; the map fills main's width automatically */
+  margin-bottom: 16px;
+  border-radius: 16px;
+  display: none;
+}
+
+/* The draggable person. Leaflet's default icon box is replaced by className: 'person'. */
+.person {
+  font-size: 28px;
+  line-height: 32px;
+  text-align: center;
+  cursor: grab;
+}
+
+/* Weather card shown in a Leaflet popup above the pin. Uses the weather background so it matches the sky. */
+.weather-popup .leaflet-popup-content-wrapper,
+.weather-popup .leaflet-popup-tip {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* The popup already has its own box and padding, so the card's own box styles are reset. */
+.weather-popup .card {
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+/* Smaller text inside the popup so the card doesn't cover too much of the map. */
+.weather-popup .leaflet-popup-content {
+  margin: 10px 14px;            /* tighter than Leaflet's default padding */
+}
+
+.weather-popup h2 { font-size: 0.95rem; margin: 0 0 4px; }
+.weather-popup .clock { font-size: 1.75rem; margin: 0; }   /* was 3rem */
+.weather-popup .temp { font-size: 1.1rem; }                /* was 1.5rem */
+.weather-popup #description { font-size: 0.85rem; margin: 2px 0 0; }
+
+/* ---------- Weather animations ---------- */
+/* .sky is a full-screen layer behind the content. */
+.sky {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none; /* clicks pass through to the page */
+}
+
+/* Rain: app.js creates the .drop elements with random positions and speeds. */
+.drop {
+  display: none;
+  position: absolute;
+  top: -20px;
+  width: 2px;
+  height: 18px;
+  border-radius: 1px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.8));
+  /* duration = the drop's own random speed x how intense the weather is x its layer */
+  animation: fall calc(var(--fall) * var(--rain-speed, 1) * var(--depth, 1)) linear infinite;
+}
+
+/* Far drops are thinner, fainter, and slower, so the rain has depth. */
+.drop.far {
+  width: 1px;
+  height: 10px;
+  opacity: 0.5;
+  --depth: 1.6;
+}
+
+@keyframes fall { /* Animation called fall. Ends a bit below the screen at 110% */
+  to { transform: translateY(110vh); }
+}
+
+/* Clouds: soft blobs at random heights (top to middle), drifting left to right. */
+body[data-condition="clouds"] { --rain-speed: 40; }   /* very slow: about 12-32s per trip */
+
+body[data-condition="clouds"] .drop:nth-child(5n) {
+  display: block;
+  top: var(--cloud-y);         
+  left: 0;
+  width: 200px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  filter: blur(20px);
+  animation-name: drift;
+}
+
+/* Far clouds are smaller (they're already fainter and slower from .drop.far). */
+body[data-condition="clouds"] .drop.far:nth-child(5n) {
+  width: 140px;
+  height: 40px;
+}
+
+/* Left to right, starting and ending off-screen. */
+@keyframes drift {
+  from { transform: translateX(-30vw); }
+  to   { transform: translateX(130vw); }
+}
+
+/* Drizzle: light with few drops falling slowly. */
+body[data-condition="drizzle"] { --rain-speed: 1.8; }
+body[data-condition="drizzle"] .drop.far:nth-child(3n) { display: block; }
+
+/* Rain: medium speed with half the drops. */
+body[data-condition="rain"] { --rain-speed: 1.3; }
+body[data-condition="rain"] .drop:nth-child(2n) { display: block; }
+
+/* Thunderstorm: heavy and every drop is falling fast. */
+body[data-condition="thunderstrom"] { --rain-speed: 0.8; }
+body[data-condition="thunderstrom"] .drop { display: block; }
+
+/* Thunderstorm: a quick double flash of lightning every 6 seconds. */
+body[data-condition="thunderstrom"] .sky::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  animation: lightning 8s infinite;
+}
+
+/* Dark for most of the cycle, then flash, dim, flash again, like real lightning. */
+@keyframes lightning {
+  0%, 90%, 100% { opacity: 0; }
+  91% { opacity: 0.6; }
+  92% { opacity: 0.1; }
+  93% { opacity: 0.4; }
+  95% { opacity: 0; }
+}
+
+/* Snow: heavy and every drop is falling fast. */
+body[data-condition="light snow"] { --rain-speed: 1.8; }
+body[data-condition="light snow"] .drop { 
+  display: block; 
+  width: 6px;
+  height: 6px;          
+  border-radius: 50%;  
+  background: #fff;
+}
+
+body[data-condition="snow"] { --rain-speed: 0.8; }
+body[data-condition="snow"] .drop { 
+  display: block;
+  width: 6px;
+  height: 6px;         
+  border-radius: 50%;  
+  background: #fff;
+   }
+
+@media (prefers-reduced-motion: reduce) { /* If uses requests reduced or no motion in their preferences. */
+  .drop,
+  .sky::before {
+    animation: none;
+  }
+}
+/* Media Queries: allows different styles to a webpage based on the characteristics of the user's device or environment */
