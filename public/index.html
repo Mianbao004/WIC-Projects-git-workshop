@@ -4,8 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Step Into the Weather</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+  <link rel="stylesheet" href="style.css"> <!--This CSS link ALWAYS goes in the head-->
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon_io/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_io/favicon-16x16.png">
+  <link rel="icon" href="/images/favicon_io/favicon.ico" sizes="any"></head>
 <body>
   <main>
     <h1>Step Into the Weather</h1>
@@ -17,12 +20,12 @@
       <label>Longitude
         <input name="lon" type="number" step="any" min="-180" max="180" value="139.69" required>
       </label>
-      <button type="submit">Step in</button>
+      <button type="submit">Go!</button>
     </form>
 
     <p id="error" class="error" role="alert" hidden></p>
 
-    <section id="result" class="card" hidden>
+    <section id="result" class="card" hidden> <!-- This is an easy way to have something "appear"-->
       <h2 id="city"></h2>
       <p id="clock" class="clock"></p>
       <p id="temp" class="temp"></p>
@@ -30,6 +33,6 @@
     </section>
   </main>
 
-  <script src="app.js" type="module"></script>
+  <script src="app.js" type="module"></script> <!--Connects your JS files-->
 </body>
 </html>
