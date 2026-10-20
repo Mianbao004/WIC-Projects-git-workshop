@@ -58,7 +58,31 @@ input, button {
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-button { cursor: pointer; }
+button {
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* Hover: lifts slightly, like it's ready to be pressed. */
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Press: shrinks and drops its shadow, like it's being pushed in. */
+button:active {
+  transform: scale(0.94);
+  box-shadow: none;
+}
+
+/* Loading (only between pressing Go! and the weather arriving): solid grey, and no hover or press effects. */
+button:disabled {
+  background: #d4d6db;   /* solid grey, never see-through */
+  color: #6b6f78;        /* muted text, still readable */
+  cursor: wait;
+  transform: none;
+  box-shadow: none;
+}
 
 .card {
   margin-top: 24px;
@@ -92,6 +116,30 @@ form,
   text-align: center;
   cursor: grab;
 }
+
+/* Weather card shown in a Leaflet popup above the pin. Uses the weather background so it matches the sky. */
+.weather-popup .leaflet-popup-content-wrapper,
+.weather-popup .leaflet-popup-tip {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* The popup already has its own box and padding, so the card's own box styles are reset. */
+.weather-popup .card {
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+/* Smaller text inside the popup so the card doesn't cover too much of the map. */
+.weather-popup .leaflet-popup-content {
+  margin: 10px 14px;            /* tighter than Leaflet's default padding */
+}
+
+.weather-popup h2 { font-size: 0.95rem; margin: 0 0 4px; }
+.weather-popup .clock { font-size: 1.75rem; margin: 0; }   /* was 3rem */
+.weather-popup .temp { font-size: 1.1rem; }                /* was 1.5rem */
+.weather-popup #description { font-size: 0.85rem; margin: 2px 0 0; }
 
 /* ---------- Weather animations ---------- */
 /* .sky is a full-screen layer behind the content. */

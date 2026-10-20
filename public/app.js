@@ -28,8 +28,31 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-const personIcon = L.divIcon({ className: 'person', html: '📍', iconSize: [32, 32], iconAnchor: [16, 30] });
+const personIcon = L.divIcon({
+  className: 'person',
+  html: '📍',
+  iconSize: [32, 32],
+  iconAnchor: [16, 30],   // the pin's tip touches the location
+  popupAnchor: [0, -40],  // the card's tip sits 40px above that: above the pin with a small gap
+});
 const person = L.marker([35.68, 139.69], { draggable: true, icon: personIcon }).addTo(map);
+
+// Bigger screens: the weather card floats above the pin. Phones: it sits below the map.
+const phoneQuery = window.matchMedia('(max-width: 600px)');
+const popupOptions = { className: 'weather-popup', closeButton: false, autoClose: false, closeOnClick: false };
+
+function placeCard() {
+  if (phoneQuery.matches) {
+    person.unbindPopup();
+    errorEl.after(resultEl); // put the card back in the page, under the map
+  } else {
+    person.bindPopup(resultEl, popupOptions);
+    if (!resultEl.hidden) person.openPopup();
+  }
+}
+
+placeCard();
+phoneQuery.addEventListener('change', placeCard); // re-check when the window is resized or a phone rotates
 
 function stepInAt(latlng) {
   // wrap() keeps longitude within -180..180 even if the map was scrolled around the world.
@@ -50,6 +73,8 @@ form.addEventListener('submit', async (event) => {
   const lat = form.lat.value;
   const lon = form.lon.value;
   errorEl.hidden = true;
+  const button = form.querySelector('button');
+  button.disabled = true;
 
   try {
     const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
@@ -60,8 +85,12 @@ form.addEventListener('submit', async (event) => {
     render(data);
   } catch (err) {
     resultEl.hidden = true;
+    person.closePopup();
     errorEl.textContent = `Could not step in: ${err.message}`;
     errorEl.hidden = false;
+  } finally {
+    // Runs after success OR error, so the button always comes back.
+    button.disabled = false;
   }
 });
 
@@ -72,6 +101,7 @@ function render(weather) {
   document.body.dataset.condition = weather.condition.toLowerCase();
   startClock(weather.timezone);
   resultEl.hidden = false;
+  person.openPopup();
 }
 
 // timezoneOffset is the location's offset from UTC, in seconds.
