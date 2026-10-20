@@ -8,6 +8,18 @@ const descriptionEl = document.querySelector('#description');
 
 let clockTimer;
 
+// Create the raindrops once. Each gets a random spot across the screen, speed, start time, and layer.
+// style.css decides how many show and how fast they fall for drizzle, rain, or thunderstorm.
+const sky = document.querySelector('.sky');
+for (let i = 0; i < 150; i++) {
+  const drop = document.createElement('span');
+  drop.className = Math.random() < 0.5 ? 'drop far' : 'drop';
+  drop.style.left = `${Math.random() * 100}%`;
+  drop.style.setProperty('--fall', `${0.6 + Math.random() * 0.4}s`); // 0.6s to 1s
+  drop.style.animationDelay = `${-Math.random() * 2}s`; // negative = already mid-fall on load
+  sky.append(drop);
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const lat = form.lat.value;
