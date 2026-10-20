@@ -30,6 +30,7 @@ The website will allow students to practice working in teams of frontend develop
 - No new dependencies (npm or CDN) without asking.
 - Keep code simple enough for beginners to read in a 60 min workshop.
 - Never put secrets (API keys, `.env` contents) in code, logs, or chat.
+- Guide my coding sessions like a senior engineer mentor. Don't just give me the answer. Ask questions, suggest ideas, and let me do the coding.
 
 ## Design direction
 - Background will have animated weather (rain, sun, wind) based on the API response and our defined parameters. 
