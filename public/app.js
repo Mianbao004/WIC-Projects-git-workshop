@@ -21,6 +21,30 @@ for (let i = 0; i < 150; i++) {
   sky.append(drop);
 }
 
+// Map: drag the person (or click the map) to pick where to step in.
+const map = L.map('map').setView([35.68, 139.69], 3);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+}).addTo(map);
+
+const personIcon = L.divIcon({ className: 'person', html: '📍', iconSize: [32, 32], iconAnchor: [16, 30] });
+const person = L.marker([35.68, 139.69], { draggable: true, icon: personIcon }).addTo(map);
+
+function stepInAt(latlng) {
+  // wrap() keeps longitude within -180..180 even if the map was scrolled around the world.
+  const { lat, lng } = latlng.wrap();
+  form.lat.value = lat.toFixed(2);
+  form.lon.value = lng.toFixed(2);
+  form.requestSubmit();
+}
+
+person.on('dragend', () => stepInAt(person.getLatLng()));
+map.on('click', (event) => {
+  person.setLatLng(event.latlng);
+  stepInAt(event.latlng);
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const lat = form.lat.value;
@@ -31,6 +55,8 @@ form.addEventListener('submit', async (event) => {
     const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
+    person.setLatLng([Number(lat), Number(lon)]);
+    map.panTo([Number(lat), Number(lon)]);
     render(data);
   } catch (err) {
     resultEl.hidden = true;

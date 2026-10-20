@@ -27,7 +27,7 @@ body {
 
 main {
   position: relative; /* keeps the content above the .sky layer */
-  max-width: 480px;
+  max-width: 80vw;   /* 80% of the screen width, centered by margin: 0 auto */
   margin: 0 auto;
   padding: 48px 16px;
 }
@@ -62,9 +62,31 @@ button { cursor: pointer; }
   background: var(--card);
 }
 
+/* Map is wide; the form and weather card stay compact and centered under it. */
+form,
+.card {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
 .clock { font-size: 3rem; margin: 8px 0; }
 .temp { font-size: 1.5rem; margin: 0; }
 .error { color: #b00020; }
+
+/* Map: where users drop the person to pick a location. */
+#map {
+  height: 70vh;      /* 70% of the screen height; the map fills main's width automatically */
+  margin-bottom: 16px;
+  border-radius: 16px;
+}
+
+/* The draggable person. Leaflet's default icon box is replaced by className: 'person'. */
+.person {
+  font-size: 28px;
+  line-height: 32px;
+  text-align: center;
+  cursor: grab;
+}
 
 /* ---------- Weather animations ---------- */
 /* .sky is a full-screen layer behind the content. */

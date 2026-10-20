@@ -9,11 +9,18 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_io/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_io/favicon-16x16.png">
   <link rel="icon" href="/images/favicon_io/favicon.ico" sizes="any">
+  <!-- Leaflet map library. integrity= makes the browser refuse the file if the CDN ever serves something different. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
   <div class="sky" aria-hidden="true"></div> <!-- Weather animations are drawn on this layer by style.css -->
   <main>
     <h1>Step Into the Weather</h1>
+
+    <div id="map"></div> <!-- Drag the person or click to pick a spot -->
 
     <form id="coords-form">
       <label>Latitude
