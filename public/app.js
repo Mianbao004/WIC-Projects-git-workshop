@@ -7,16 +7,15 @@ const tempEl = document.querySelector('#temp');
 const descriptionEl = document.querySelector('#description');
 
 let clockTimer;
+let latestRequest = 0; // counts requests, so only the newest answer is shown
 
-// Create the raindrops once. Each gets a random spot across the screen, speed, start time, and layer.
-// style.css decides how many show and how fast they fall for drizzle, rain, or thunderstorm.
 const sky = document.querySelector('.sky');
 for (let i = 0; i < 150; i++) {
   const drop = document.createElement('span');
   drop.className = Math.random() < 0.5 ? 'drop far' : 'drop';
   drop.style.left = `${Math.random() * 100}%`;
   drop.style.setProperty('--fall', `${0.6 + Math.random() * 0.4}s`); // 0.6s to 1s
-  drop.style.setProperty('--cloud-y', `${Math.random() * 50}%`); // clouds: random height, top to middle
+  drop.style.setProperty('--cloud-y', `${Math.random() * 50}%`); // clouds: random height, top half 
   drop.style.animationDelay = `${-Math.random() * 100}s`; // negative = already mid-way on load
   sky.append(drop);
 }
@@ -45,9 +44,9 @@ function placeCard() {
   if (phoneQuery.matches) {
     person.unbindPopup();
     errorEl.after(resultEl); // put the card back in the page, under the map
-  } else {
-    person.bindPopup(resultEl, popupOptions);
-    if (!resultEl.hidden) person.openPopup();
+  } else if (!resultEl.hidden) {
+    // Only attach the popup once there's weather to show, so clicking the pin early doesn't open an empty bubble.
+    person.bindPopup(resultEl, popupOptions).openPopup();
   }
 }
 
@@ -55,18 +54,18 @@ placeCard();
 phoneQuery.addEventListener('change', placeCard); // re-check when the window is resized or a phone rotates
 
 function stepInAt(latlng) {
+  // Zoomed far out, you can click above or below the world (latitude past ±90), so keep the pin on the map.
+  const lat = Math.max(-85, Math.min(85, latlng.lat));
+  person.setLatLng([lat, latlng.lng]);
   // wrap() keeps longitude within -180..180 even if the map was scrolled around the world.
-  const { lat, lng } = latlng.wrap();
+  const { lng } = latlng.wrap();
   form.lat.value = lat.toFixed(2);
   form.lon.value = lng.toFixed(2);
   form.requestSubmit();
 }
 
 person.on('dragend', () => stepInAt(person.getLatLng()));
-map.on('click', (event) => {
-  person.setLatLng(event.latlng);
-  stepInAt(event.latlng);
-});
+map.on('click', (event) => stepInAt(event.latlng));
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -75,22 +74,25 @@ form.addEventListener('submit', async (event) => {
   errorEl.hidden = true;
   const button = form.querySelector('button');
   button.disabled = true;
+  const requestId = ++latestRequest;
 
   try {
     const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
     const data = await response.json();
+    if (requestId !== latestRequest) return; // a newer request was sent while this one loaded, so ignore this answer
     if (!response.ok) throw new Error(data.error);
     person.setLatLng([Number(lat), Number(lon)]);
     map.panTo([Number(lat), Number(lon)]);
     render(data);
   } catch (err) {
+    if (requestId !== latestRequest) return;
     resultEl.hidden = true;
-    person.closePopup();
+    person.unbindPopup(); // no weather to show, so clicking the pin shouldn't open an empty bubble
     errorEl.textContent = `Could not step in: ${err.message}`;
     errorEl.hidden = false;
   } finally {
-    // Runs after success OR error, so the button always comes back.
-    button.disabled = false;
+    // Runs after success OR error. Only the newest request turns the button back on.
+    if (requestId === latestRequest) button.disabled = false;
   }
 });
 
@@ -101,7 +103,7 @@ function render(weather) {
   document.body.dataset.condition = weather.condition.toLowerCase();
   startClock(weather.timezone);
   resultEl.hidden = false;
-  person.openPopup();
+  placeCard(); // show the card above the pin (or below the map on phones)
 }
 
 // timezoneOffset is the location's offset from UTC, in seconds.
